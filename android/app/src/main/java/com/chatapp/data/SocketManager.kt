@@ -48,7 +48,8 @@ object SocketManager {
             .setAuth(mapOf("token" to token))
             .build()
 
-        val newSocket = IO.socket(URI.create(Config.SOCKET_URL), options)
+        val serverUrl = Session.current.serverUrl?.trim()?.removeSuffix("/") ?: Config.DEFAULT_URL
+        val newSocket = IO.socket(URI.create(serverUrl), options)
 
         newSocket.on(Socket.EVENT_CONNECT) {
             listeners.forEach { it.onConnected() }

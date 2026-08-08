@@ -13,6 +13,12 @@ object ApiClient {
 
     val gson = Gson()
 
+    @Volatile
+    private var currentBase: String = Session.serverBase()
+
+    @Volatile
+    private var currentService: ApiService? = null
+
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BASIC
     }
@@ -24,12 +30,25 @@ object ApiClient {
         .addInterceptor(logging)
         .build()
 
-    val service: ApiService = Retrofit.Builder()
-        .baseUrl(Config.BASE_URL)
-        .client(okHttp)
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .build()
-        .create(ApiService::class.java)
+    fun configure(baseUrl: String) {
+        val normalized = if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/"
+        currentBase = normalized
+        currentService = null
+    }
+
+    val service: ApiService
+        get() {
+            val existing = currentService
+            if (existing != null) return existing
+            val created = Retrofit.Builder()
+                .baseUrl(currentBase)
+                .client(okHttp)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build()
+                .create(ApiService::class.java)
+            currentService = created
+            return created
+        }
 
     fun bearer(): String = "Bearer ${Session.current.token ?: ""}"
 

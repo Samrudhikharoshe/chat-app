@@ -26,7 +26,7 @@ chat-app/
 │   ├── src/          # auth, socket handlers, media upload, JSON store
 │   └── server.js     # entry point
 ├── apk/              # Prebuilt APK
-│   └── ChatApp-v1.0.0-debug.apk
+│   └── ChatApp-v1.1.0-debug.apk
 ├── docs/             # Project report (PDF)
 └── README.md
 ```
@@ -63,7 +63,7 @@ Or register any new account from the app — it is instant.
 
 ### 2. Build / install the Android app
 
-- **Prebuilt:** install `apk/ChatApp-v1.0.0-debug.apk` on a device or emulator (enable "Install unknown apps").
+- **Prebuilt:** install `apk/ChatApp-v1.1.0-debug.apk` on a device or emulator (enable "Install unknown apps").
 - **From source:**
 
 ```bash
@@ -74,15 +74,17 @@ cd android
 
 ### 3. Configure the server address
 
-The app connects to the backend at `android/app/src/main/java/com/chatapp/data/Config.kt` (currently set to a LAN address for physical-device testing).
+The app asks for the **server address** on the login screen (pre-filled with the default from `android/app/src/main/java/com/chatapp/data/Config.kt`). The address is saved per device, so no rebuild is needed to switch servers.
 
-- **Physical device (same Wi-Fi as the PC):** set both URLs to your PC's local IP, e.g. `http://192.168.31.230:3000/`, then rebuild:
-  ```bash
-  cd android
-  ./gradlew :app:assembleDebug
-  ```
-  Allow TCP port 3000 through Windows Firewall, and keep your PC's Wi-Fi network set to **Private**.
-- **Emulator:** use the host loopback `http://10.0.2.2:3000/` instead.
+- **Physical device (same Wi-Fi as the PC):** use your PC's local IP, e.g. `http://192.168.31.230:3000`. Allow TCP port 3000 through Windows Firewall and keep the Wi-Fi network set to **Private**.
+- **Emulator:** use the host loopback `http://10.0.2.2:3000`.
+- **Anywhere (different networks / 4G):** expose the backend over a free Cloudflare quick tunnel — no public IP or port forwarding required.
+
+```bash
+cloudflared tunnel --url http://localhost:3000
+```
+
+Copy the printed `https://<random>.trycloudflare.com` URL into the server-address field of the app (leave off any trailing slash). The tunnel URL changes on every `cloudflared` restart, so re-enter the new one in the app if it restarts.
 
 ### 4. Test with two users
 

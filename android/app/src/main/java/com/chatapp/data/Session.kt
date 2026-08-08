@@ -28,6 +28,10 @@ class Session private constructor(context: Context) {
         get() = prefs.getString(KEY_AVATAR, null)
         set(value) = prefs.edit().putString(KEY_AVATAR, value).apply()
 
+    var serverUrl: String?
+        get() = prefs.getString(KEY_SERVER, null) ?: Config.DEFAULT_URL
+        set(value) = prefs.edit().putString(KEY_SERVER, value).apply()
+
     fun saveAuth(user: User, token: String) {
         this.token = token
         userId = user.id
@@ -48,6 +52,7 @@ class Session private constructor(context: Context) {
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_AVATAR = "avatar"
+        private const val KEY_SERVER = "server_url"
 
         @Volatile
         private var instance: Session? = null
@@ -60,5 +65,7 @@ class Session private constructor(context: Context) {
 
         val current: Session
             get() = checkNotNull(instance) { "Session.init() must be called first" }
+
+        fun serverBase(): String = instance?.serverUrl ?: Config.DEFAULT_URL
     }
 }

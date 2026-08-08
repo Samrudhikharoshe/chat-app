@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.chatapp.R
+import com.chatapp.data.ApiClient
 import com.chatapp.data.ChatRepository
 import com.chatapp.data.Session
 import com.chatapp.data.SocketManager
@@ -37,6 +38,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.inputName.visibility = View.GONE
+        binding.inputServer.setText(Session.serverBase().removeSuffix("/"))
 
         binding.toggleMode.setOnClickListener {
             isRegisterMode = !isRegisterMode
@@ -62,6 +64,19 @@ class LoginActivity : AppCompatActivity() {
         val name = binding.inputName.text.toString().trim()
         val email = binding.inputEmail.text.toString().trim()
         val password = binding.inputPassword.text.toString()
+        val server = binding.inputServer.text.toString().trim()
+
+        if (server.isEmpty()) {
+            binding.tilServer.error = getString(R.string.server_required)
+            return
+        }
+        if (!server.startsWith("http://") && !server.startsWith("https://")) {
+            binding.tilServer.error = getString(R.string.server_invalid)
+            return
+        }
+
+        Session.current.serverUrl = server
+        ApiClient.configure(server)
 
         if (isRegisterMode && name.isEmpty()) {
             binding.tilName.error = getString(R.string.name_required)

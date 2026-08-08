@@ -45,6 +45,22 @@ The server listens on `http://0.0.0.0:3000`. Health check: `curl http://localhos
 
 Data is stored in `backend/data/` (JSON files); uploaded images land in `backend/uploads/`.
 
+### 0. Demo accounts (optional)
+
+Seed two ready-made accounts:
+
+```bash
+cd backend
+node seed-demo.js
+```
+
+| Email | Password |
+| --- | --- |
+| `demo@chatapp.com` | `demo123` |
+| `alice@chatapp.com` | `alice123` |
+
+Or register any new account from the app — it is instant.
+
 ### 2. Build / install the Android app
 
 - **Prebuilt:** install `apk/ChatApp-v1.0.0-debug.apk` on a device or emulator (enable "Install unknown apps").

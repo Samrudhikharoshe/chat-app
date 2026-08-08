@@ -12,6 +12,7 @@ object SocketManager {
     interface Listener {
         fun onMessageReceived(message: Message)
         fun onMessageSent(message: Message)
+        fun onMessageUpdated(message: Message) {}
         fun onUserStatus(user: User)
         fun onTyping(fromId: String, name: String, typing: Boolean)
         fun onMessagesRead(fromId: String)
@@ -53,6 +54,7 @@ object SocketManager {
 
         newSocket.on(Socket.EVENT_CONNECT) {
             listeners.forEach { it.onConnected() }
+            MessageCache.current.flushPending()
         }
         newSocket.on(Socket.EVENT_DISCONNECT) {
             listeners.forEach { it.onDisconnected() }
@@ -67,7 +69,11 @@ object SocketManager {
         }
         newSocket.on("message:ack") { args ->
             val message = parseMessage(args)
-            if (message != null) listeners.forEach { it.onMessageSent(message) }
+            if (message != null) handleSent(message)
+        }
+        newSocket.on("message:updated") { args ->
+            val message = parseMessage(args)
+            if (message != null) listeners.forEach { it.onMessageUpdated(message) }
         }
         newSocket.on("user:status") { args ->
             val user = parseUser(args)
@@ -105,21 +111,100 @@ object SocketManager {
         socket = null
     }
 
-    fun sendMessage(to: String, type: String, content: String?, mediaUrl: String?) {
+    fun sendMessage(
+        to: String,
+        type: String,
+        content: String?,
+        mediaUrl: String?,
+        id: String? = null,
+        duration: Int? = null
+    ) {
+        emitSend(to, type, content, mediaUrl, id, duration)
+    }
+
+    fun emitQueued(message: Message) {
+        emitSend(message.toId, message.type, message.content, message.mediaUrl, message.id, message.duration)
+    }
+
+    private fun emitSend(
+        to: String,
+        type: String,
+        content: String?,
+        mediaUrl: String?,
+        id: String?,
+        duration: Int?
+    ) {
         val payload = JSONObject()
         payload.put("to", to)
         payload.put("type", type)
+        id?.let { payload.put("id", it) }
         content?.let { payload.put("content", it) }
         mediaUrl?.let { payload.put("mediaUrl", it) }
+        duration?.let { payload.put("duration", it) }
         socket?.emit("message:send", payload, Ack { args ->
             if (args.isNotEmpty() && args[0] is JSONObject) {
                 val obj = args[0] as JSONObject
                 if (obj.optBoolean("ok")) {
                     val message = parseMessage(arrayOf(obj.optJSONObject("message")))
-                    if (message != null) listeners.forEach { it.onMessageSent(message) }
+                    if (message != null) handleSent(message)
                 }
             }
         })
+    }
+
+    private fun handleSent(message: Message) {
+        MessageCache.current.confirmSent(message)
+        listeners.forEach { it.onMessageSent(message) }
+    }
+
+    fun editMessage(id: String, content: String) {
+        val payload = JSONObject()
+        payload.put("id", id)
+        payload.put("content", content)
+        socket?.emit("message:edit", payload, Ack { args ->
+            if (args.isNotEmpty() && args[0] is JSONObject) {
+                val obj = args[0] as JSONObject
+                if (obj.optBoolean("ok")) {
+                    val message = parseMessage(arrayOf(obj.optJSONObject("message")))
+                    if (message != null) listeners.forEach { it.onMessageUpdated(message) }
+                }
+            }
+        })
+    }
+
+    fun deleteMessage(id: String) {
+        val payload = JSONObject()
+        payload.put("id", id)
+        socket?.emit("message:delete", payload, Ack { args ->
+            if (args.isNotEmpty() && args[0] is JSONObject) {
+                val obj = args[0] as JSONObject
+                if (obj.optBoolean("ok")) {
+                    val message = parseMessage(arrayOf(obj.optJSONObject("message")))
+                    if (message != null) listeners.forEach { it.onMessageUpdated(message) }
+                }
+            }
+        })
+    }
+
+    fun reactToMessage(id: String, emoji: String) {
+        val payload = JSONObject()
+        payload.put("id", id)
+        payload.put("emoji", emoji)
+        socket?.emit("message:react", payload, Ack { args ->
+            if (args.isNotEmpty() && args[0] is JSONObject) {
+                val obj = args[0] as JSONObject
+                if (obj.optBoolean("ok")) {
+                    val message = parseMessage(arrayOf(obj.optJSONObject("message")))
+                    if (message != null) listeners.forEach { it.onMessageUpdated(message) }
+                }
+            }
+        })
+    }
+
+    fun setAvatar(avatarUrl: String) {
+        val payload = JSONObject()
+        payload.put("avatarUrl", avatarUrl)
+        socket?.emit("user:avatar", payload)
     }
 
     fun markRead(fromId: String) {
@@ -145,13 +230,33 @@ object SocketManager {
                 type = obj.optString("type", "text"),
                 content = if (obj.isNull("content")) null else obj.optString("content"),
                 mediaUrl = if (obj.isNull("mediaUrl")) null else obj.optString("mediaUrl"),
+                duration = if (obj.isNull("duration")) null else obj.optInt("duration"),
                 createdAt = obj.optString("createdAt"),
                 read = obj.optBoolean("read", false),
-                readAt = if (obj.isNull("readAt")) null else obj.optString("readAt")
+                readAt = if (obj.isNull("readAt")) null else obj.optString("readAt"),
+                edited = obj.optBoolean("edited", false),
+                editedAt = if (obj.isNull("editedAt")) null else obj.optString("editedAt"),
+                deleted = obj.optBoolean("deleted", false),
+                deletedAt = if (obj.isNull("deletedAt")) null else obj.optString("deletedAt"),
+                reactions = parseReactions(obj.optJSONObject("reactions"))
             )
         } catch (e: Exception) {
             null
         }
+    }
+
+    private fun parseReactions(json: JSONObject?): Map<String, List<String>> {
+        if (json == null) return emptyMap()
+        val map = mutableMapOf<String, List<String>>()
+        val keys = json.keys()
+        while (keys.hasNext()) {
+            val key = keys.next() as String
+            val arr = json.optJSONArray(key) ?: continue
+            val list = mutableListOf<String>()
+            for (i in 0 until arr.length()) list.add(arr.optString(i))
+            map[key] = list
+        }
+        return map
     }
 
     private fun parseUser(args: Array<Any>): User? {

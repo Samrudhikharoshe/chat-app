@@ -13,23 +13,40 @@
         android:background="@drawable/bubble_in"
         android:maxWidth="320dp"
         android:orientation="vertical"
-        android:padding="6dp">
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="8dp">
 
-        <ImageView
-            android:id="@+id/messageImage"
-            android:layout_width="220dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/photo"
-            android:scaleType="centerCrop" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/playBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/play"
+                android:padding="6dp" />
+
+            <TextView
+                android:id="@+id/durationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/timeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginTop="2dp"
-            android:paddingEnd="6dp"
+            android:layout_marginTop="4dp"
             android:textColor="@color/gray_text"
             android:textSize="11sp" />
 

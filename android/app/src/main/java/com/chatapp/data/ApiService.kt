@@ -30,6 +30,7 @@ interface ApiService {
     suspend fun getMessages(
         @Header("Authorization") auth: String,
         @Path("userId") userId: String,
+        @Query("q") query: String? = null,
         @Query("limit") limit: Int = 200
     ): Response<MessageListResponse>
 

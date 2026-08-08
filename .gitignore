@@ -3,6 +3,7 @@ node_modules/
 
 # Android / Gradle
 android/.gradle/
+android/.kotlin/
 android/local.properties
 android/build/
 android/app/build/

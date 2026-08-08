@@ -27,6 +27,26 @@
         android:textSize="13sp"
         android:visibility="gone" />
 
+    <EditText
+        android:id="@+id/searchInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/bg_search"
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="10dp"
+        android:hint="@string/search_chat_hint"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="10dp"
+        android:textSize="14sp" />
+
     <TextView
         android:id="@+id/typingIndicator"
         android:layout_width="wrap_content"
@@ -49,6 +69,48 @@
         android:paddingBottom="16dp" />
 
     <LinearLayout
+        android:id="@+id/recordingBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_light"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="10dp"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/btnCancelRecording"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cancel"
+            android:src="@drawable/ic_close" />
+
+        <TextView
+            android:id="@+id/recordingTimer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/recording"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/btnStopRecording"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_send"
+            android:contentDescription="@string/stop"
+            android:padding="12dp"
+            android:src="@drawable/ic_pause" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/inputRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"

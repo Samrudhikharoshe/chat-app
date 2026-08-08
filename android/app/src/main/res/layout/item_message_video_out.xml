@@ -4,24 +4,37 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
-    android:gravity="start">
+    android:gravity="end">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="60dp"
-        android:background="@drawable/bubble_in"
+        android:layout_marginStart="60dp"
+        android:background="@drawable/bubble_out"
         android:maxWidth="320dp"
         android:orientation="vertical"
         android:padding="6dp">
 
-        <ImageView
-            android:id="@+id/messageImage"
+        <FrameLayout
             android:layout_width="220dp"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/photo"
-            android:scaleType="centerCrop" />
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/videoThumb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/video"
+                android:scaleType="centerCrop" />
+
+            <ImageView
+                android:id="@+id/playBadge"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/play"
+                android:padding="8dp" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/timeLabel"
@@ -30,14 +43,14 @@
             android:layout_gravity="end"
             android:layout_marginTop="2dp"
             android:paddingEnd="6dp"
-            android:textColor="@color/gray_text"
+            android:textColor="#C7D2FE"
             android:textSize="11sp" />
 
         <LinearLayout
             android:id="@+id/reactionsContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            android:layout_gravity="end"
             android:layout_marginTop="2dp"
             android:orientation="horizontal" />
     </LinearLayout>

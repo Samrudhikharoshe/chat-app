@@ -26,9 +26,37 @@ class MessageCache private constructor(context: Context) {
         prefs.edit().putString(keyFor(peerId), ApiClient.gson.toJson(sorted)).apply()
     }
 
+    fun outbox(): List<Message> {
+        val json = prefs.getString(KEY_OUTBOX, null) ?: return emptyList()
+        return ApiClient.gsonList<Message>(json).filter { it.pending }
+    }
+
+    fun queueOutgoing(message: Message) {
+        val list = outbox().toMutableList()
+        list.removeAll { it.id == message.id }
+        list.add(message)
+        prefs.edit().putString(KEY_OUTBOX, ApiClient.gson.toJson(list)).apply()
+        saveMessage(message.copy(pending = true))
+    }
+
+    fun confirmSent(message: Message) {
+        val updated = message.copy(pending = false)
+        val list = outbox().filterNot { it.id == message.id }
+        prefs.edit().putString(KEY_OUTBOX, ApiClient.gson.toJson(list)).apply()
+        saveMessage(updated)
+    }
+
+    fun flushPending() {
+        val pending = outbox()
+        if (pending.isEmpty()) return
+        pending.forEach { SocketManager.emitQueued(it) }
+    }
+
     private fun keyFor(peerId: String): String = "chat_$peerId"
 
     companion object {
+        private const val KEY_OUTBOX = "outbox"
+
         @Volatile
         private var instance: MessageCache? = null
 

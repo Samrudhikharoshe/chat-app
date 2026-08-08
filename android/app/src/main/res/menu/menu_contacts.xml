@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_profile_photo"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="@string/set_profile_photo"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_logout"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@string/logout"

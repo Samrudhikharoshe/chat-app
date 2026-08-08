@@ -4,13 +4,13 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
-    android:gravity="start">
+    android:gravity="end">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="60dp"
-        android:background="@drawable/bubble_in"
+        android:layout_marginStart="60dp"
+        android:background="@drawable/bubble_out"
         android:maxWidth="320dp"
         android:orientation="vertical"
         android:paddingStart="14dp"
@@ -18,12 +18,28 @@
         android:paddingEnd="14dp"
         android:paddingBottom="8dp">
 
-        <TextView
-            android:id="@+id/messageText"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/playBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/play"
+                android:padding="6dp" />
+
+            <TextView
+                android:id="@+id/durationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/timeLabel"
@@ -31,14 +47,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="4dp"
-            android:textColor="@color/gray_text"
+            android:textColor="#C7D2FE"
             android:textSize="11sp" />
 
         <LinearLayout
             android:id="@+id/reactionsContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            android:layout_gravity="end"
             android:layout_marginTop="2dp"
             android:orientation="horizontal" />
     </LinearLayout>

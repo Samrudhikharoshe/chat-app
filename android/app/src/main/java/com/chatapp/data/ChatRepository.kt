@@ -51,10 +51,10 @@ class ChatRepository {
             }
         }
 
-    suspend fun fetchMessages(peerId: String): Result<List<Message>> =
+    suspend fun fetchMessages(peerId: String, query: String? = null): Result<List<Message>> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val resp = ApiClient.service.getMessages(ApiClient.bearer(), peerId)
+                val resp = ApiClient.service.getMessages(ApiClient.bearer(), peerId, query)
                 val body = resp.body()
                 if (resp.isSuccessful && body != null) {
                     body.messages
@@ -64,26 +64,34 @@ class ChatRepository {
             }
         }
 
-    suspend fun uploadImage(context: Context, contentUri: Uri): Result<String> =
+    suspend fun uploadMedia(context: Context, contentUri: Uri): Result<String> =
         withContext(Dispatchers.IO) {
             runCatching {
                 val fileName =
                     contentUri.getDisplayName(context.contentResolver)
-                        ?: "image_${System.currentTimeMillis()}.jpg"
-                val mime = context.uriType(contentUri) ?: "image/jpeg"
+                        ?: "media_${System.currentTimeMillis()}"
+                val mime = context.uriType(contentUri) ?: "application/octet-stream"
                 val bytes = context.contentResolver.openInputStream(contentUri)?.use { it.readBytes() }
-                    ?: throw ApiException("Cannot read the selected image.")
-                val requestBody = bytes.toRequestBody(mime.toMediaTypeOrNull(), 0, bytes.size)
-                val part = MultipartBody.Part.createFormData("file", fileName, requestBody)
-                val resp = ApiClient.service.uploadMedia(part)
-                val body = resp.body()
-                if (resp.isSuccessful && body != null) {
-                    body.url
-                } else {
-                    throw ApiException("Upload failed.")
-                }
+                    ?: throw ApiException("Cannot read the selected file.")
+                performUpload(bytes, fileName, mime)
             }
         }
+
+    suspend fun uploadBytes(bytes: ByteArray, fileName: String, mime: String): Result<String> =
+        withContext(Dispatchers.IO) {
+            runCatching { performUpload(bytes, fileName, mime) }
+        }
+
+    private suspend fun performUpload(bytes: ByteArray, fileName: String, mime: String): String {
+        val requestBody = bytes.toRequestBody(mime.toMediaTypeOrNull(), 0, bytes.size)
+        val part = MultipartBody.Part.createFormData("file", fileName, requestBody)
+        val resp = ApiClient.service.uploadMedia(part)
+        val body = resp.body()
+        if (resp.isSuccessful && body != null) {
+            return body.url
+        }
+        throw ApiException("Upload failed.")
+    }
 
     private fun parseError(raw: String?): String {
         return try {

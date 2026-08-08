@@ -1,9 +1,11 @@
 package com.chatapp.ui.contacts
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +28,12 @@ class ContactsActivity : AppCompatActivity() {
     private val repository = ChatRepository()
     private var users = listOf<User>()
 
+    private val pickProfilePhoto = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) uploadProfilePhoto(uri)
+    }
+
     private val socketListener = object : SocketManager.Listener {
         override fun onUserStatus(user: User) {
             runOnUiThread {
@@ -41,6 +49,12 @@ class ContactsActivity : AppCompatActivity() {
         }
 
         override fun onMessageSent(message: Message) {
+            runOnUiThread {
+                updateLastMessage(message)
+            }
+        }
+
+        override fun onMessageUpdated(message: Message) {
             runOnUiThread {
                 updateLastMessage(message)
             }
@@ -64,10 +78,17 @@ class ContactsActivity : AppCompatActivity() {
         binding.toolbar.title = getString(R.string.contacts)
         binding.toolbar.inflateMenu(R.menu.menu_contacts)
         binding.toolbar.setOnMenuItemClickListener { item ->
-            if (item.itemId == R.id.action_logout) {
-                logout()
-                true
-            } else false
+            when (item.itemId) {
+                R.id.action_profile_photo -> {
+                    pickProfilePhoto.launch("image/*")
+                    true
+                }
+                R.id.action_logout -> {
+                    logout()
+                    true
+                }
+                else -> false
+            }
         }
 
         adapter = ContactsAdapter { user ->
@@ -131,9 +152,33 @@ class ContactsActivity : AppCompatActivity() {
     }
 
     private fun previewOf(message: Message): String {
+        if (message.deleted) return getString(R.string.deleted_message)
         return when (message.type) {
-            "image" -> "Photo"
+            "image" -> getString(R.string.photo)
+            "video" -> getString(R.string.video)
+            "voice" -> getString(R.string.voice_note)
+            "audio" -> getString(R.string.audio)
             else -> message.content ?: ""
+        }
+    }
+
+    private fun uploadProfilePhoto(uri: Uri) {
+        lifecycleScope.launch {
+            repository.uploadMedia(this@ContactsActivity, uri).onSuccess { url ->
+                Session.current.avatarUrl = url
+                SocketManager.setAvatar(url)
+                Toast.makeText(
+                    this@ContactsActivity,
+                    getString(R.string.set_profile_photo) + " ✓",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }.onFailure {
+                Toast.makeText(
+                    this@ContactsActivity,
+                    it.message ?: getString(R.string.error_generic),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 

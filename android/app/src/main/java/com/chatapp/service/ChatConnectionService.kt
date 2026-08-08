@@ -83,12 +83,20 @@ class ChatConnectionService : Service() {
     }
 
     private fun notifyMessage(message: Message) {
+        val preview = when {
+            message.deleted -> getString(R.string.deleted_message)
+            message.type == "image" -> getString(R.string.photo)
+            message.type == "video" -> getString(R.string.video)
+            message.type == "voice" -> getString(R.string.voice_note)
+            message.type == "audio" -> getString(R.string.audio)
+            else -> message.content ?: getString(R.string.photo)
+        }
         val contentIntent = PendingIntent.getActivity(
             this,
             message.id.hashCode(),
             Intent(this, ChatActivity::class.java)
                 .putExtra(ChatActivity.EXTRA_PEER_ID, message.fromId)
-                .putExtra(ChatActivity.EXTRA_PEER_NAME, message.content ?: "New message")
+                .putExtra(ChatActivity.EXTRA_PEER_NAME, message.content ?: preview)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
@@ -96,8 +104,8 @@ class ChatConnectionService : Service() {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(Session.current.userName ?: "New message")
-            .setContentText(message.content ?: "Shared a photo")
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message.content ?: "Shared a photo"))
+            .setContentText(preview)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(preview))
             .setContentIntent(contentIntent)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

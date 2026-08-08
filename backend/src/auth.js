@@ -147,15 +147,20 @@ function createRouter() {
       const meId = payload.uid;
       const peerId = String(req.params.userId);
       const limit = Math.min(parseInt(req.query.limit, 10) || 200, 500);
+      const q = sanitizeSearch(req.query.q);
 
       const all = store.loadMessages();
-      const history = all
+      let history = all
         .filter(
           (m) =>
             (m.from === meId && m.to === peerId) ||
             (m.from === peerId && m.to === meId)
         )
         .slice(-limit);
+
+      if (q) {
+        history = history.filter((m) => !m.deleted && (m.content || '').toLowerCase().includes(q));
+      }
 
       return res.json({ messages: history });
     } catch (err) {

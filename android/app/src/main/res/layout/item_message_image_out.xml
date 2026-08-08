@@ -32,5 +32,13 @@
             android:paddingEnd="6dp"
             android:textColor="#C7D2FE"
             android:textSize="11sp" />
+
+        <LinearLayout
+            android:id="@+id/reactionsContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="2dp"
+            android:orientation="horizontal" />
     </LinearLayout>
 </LinearLayout>

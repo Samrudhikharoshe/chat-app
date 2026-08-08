@@ -19,9 +19,16 @@ data class Message(
     val type: String = "text",
     val content: String? = null,
     val mediaUrl: String? = null,
+    val duration: Int? = null,
     val createdAt: String = "",
     val read: Boolean = false,
-    val readAt: String? = null
+    val readAt: String? = null,
+    val edited: Boolean = false,
+    val editedAt: String? = null,
+    val deleted: Boolean = false,
+    val deletedAt: String? = null,
+    val reactions: Map<String, List<String>> = emptyMap(),
+    val pending: Boolean = false
 )
 
 data class AuthResponse(

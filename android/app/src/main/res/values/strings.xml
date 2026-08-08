@@ -29,7 +29,32 @@
 
     <string name="type_hint">Type a message…</string>
     <string name="send">Send</string>
-    <string name="attach">Attach image</string>
+    <string name="attach">Attach</string>
+    <string name="attach_photo">Photo</string>
+    <string name="attach_video">Video</string>
+    <string name="attach_voice">Voice note</string>
     <string name="reconnecting">Reconnecting to server…</string>
     <string name="photo">Photo</string>
+    <string name="video">Video</string>
+    <string name="voice_note">Voice note</string>
+    <string name="audio">Audio</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="stop">Stop</string>
+    <string name="cancel">Cancel</string>
+    <string name="recording">Recording…</string>
+    <string name="sending">Sending…</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="react">React</string>
+    <string name="delete_message_confirm">Delete this message for everyone?</string>
+    <string name="deleted_message">Message deleted</string>
+    <string name="edited_suffix"> (edited)</string>
+    <string name="search_chat_hint">Search in chat…</string>
+    <string name="no_search_results">No messages match</string>
+    <string name="set_profile_photo">Set profile photo</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="recording_requires_permission">Microphone permission is required to record a voice note.</string>
+    <string name="edit_message_hint">Edit message</string>
+    <string name="choose_action">Choose an action</string>
 </resources>

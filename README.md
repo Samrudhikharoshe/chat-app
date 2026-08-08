@@ -10,8 +10,12 @@ A real-time messaging application built with a **native Android (Kotlin)** clien
 | Real-Time Messaging | Socket.io WebSocket transport, message delivery with server ack |
 | Online Status | Live presence events broadcast over sockets |
 | Push Notifications | Foreground service maintains the connection in background and posts Android notifications for new messages |
-| Media Sharing | Image picker + multipart upload, rendered inline in the conversation |
+| Media Sharing | Image & video pickers and voice-note recording, uploaded via multipart and rendered inline |
+| Message Actions | Edit, delete, and emoji reactions on any message, broadcast live to both users |
+| In-Chat Search | Text search filters a conversation; server-side `?q=` search across history |
 | Chat History | Messages persisted on the server and cached locally per conversation |
+| Offline Queue | Messages sent while offline are queued locally and flushed automatically on reconnect |
+| Avatars | Set a profile photo from the contacts screen; shown in the contact list |
 
 ## Repository layout
 
@@ -26,7 +30,7 @@ chat-app/
 │   ├── src/          # auth, socket handlers, media upload, JSON store
 │   └── server.js     # entry point
 ├── apk/              # Prebuilt APK
-│   └── ChatApp-v1.1.0-debug.apk
+│   └── ChatApp-v1.2.0-debug.apk
 ├── docs/             # Project report (PDF)
 └── README.md
 ```
@@ -63,7 +67,7 @@ Or register any new account from the app — it is instant.
 
 ### 2. Build / install the Android app
 
-- **Prebuilt:** install `apk/ChatApp-v1.1.0-debug.apk` on a device or emulator (enable "Install unknown apps").
+- **Prebuilt:** install `apk/ChatApp-v1.2.0-debug.apk` on a device or emulator (enable "Install unknown apps").
 - **From source:**
 
 ```bash
@@ -91,8 +95,10 @@ Copy the printed `https://<random>.trycloudflare.com` URL into the server-addres
 1. Register account A and account B.
 2. Both log in — the contacts list shows every registered user with a green online dot.
 3. Open a conversation and send messages; they appear instantly on the other device.
-4. Attach a photo with the paperclip button; it uploads and displays as an image bubble.
-5. Press Home on one device — new messages arrive as push notifications.
+4. Attach a photo or video with the paperclip button, or record a voice note with the mic button.
+5. Long-press a message to edit it, delete it, or react with an emoji; use the search bar to filter the conversation.
+6. Set a profile photo from the contacts screen (top-right menu).
+7. Press Home on one device — new messages arrive as push notifications.
 
 ## REST API
 
@@ -103,7 +109,7 @@ All endpoints under `/api/auth/*` require `Authorization: Bearer <token>` except
 | POST | `/api/auth/register` | Create account `{name, email, password}` → `{token, user}` |
 | POST | `/api/auth/login` | Log in `{email, password}` → `{token, user}` |
 | GET | `/api/auth/users?q=` | List registered users with live `online` status |
-| GET | `/api/auth/messages/:userId` | Full chat history between you and another user |
+| GET | `/api/auth/messages/:userId?q=` | Full chat history between you and another user, optionally filtered by text `q` |
 | POST | `/api/media/upload` | Multipart image upload → `{url}` |
 | GET | `/uploads/:filename` | Served media files |
 | GET | `/health` | Server health check |
@@ -114,9 +120,13 @@ Client authenticates with `{ auth: { token } }` in the handshake.
 
 | Event (emit) | Payload | Event (listen) | Description |
 | --- | --- | --- | --- |
-| `message:send` | `{to, type, content?/mediaUrl?}` | `message:ack` + `message:new` | Send a message (server persists & broadcasts) |
+| `message:send` | `{to, type, content?/mediaUrl?, id?, duration?}` | `message:ack` + `message:new` | Send a message (server persists & broadcasts; a client-supplied `id` is deduplicated) |
+| `message:edit` | `{id, content}` | `message:updated` | Edit your own text message (author only) |
+| `message:delete` | `{id}` | `message:updated` | Soft-delete a message (author or recipient) |
+| `message:react` | `{id, emoji}` | `message:updated` | Toggle an emoji reaction on a message |
 | `message:read` | `{from}` | `message:read` | Mark all messages from a user as read |
 | `typing:start` / `typing:stop` | `{to}` | `typing:start` / `typing:stop` | Typing indicator |
+| `user:avatar` | `{avatar}` | `user:status` | Update the user's profile photo |
 | — | — | `user:status` | Presence change `{id, online, lastSeen}` |
 
 ## Security notes
@@ -124,12 +134,12 @@ Client authenticates with `{ auth: { token } }` in the handshake.
 - Passwords hashed with bcrypt (10 rounds); never stored in plain text.
 - JWT signed with a server secret (`JWT_SECRET` env var — set it in production).
 - Socket connections are authenticated; the server rejects invalid/missing tokens.
-- Media uploads limited to 10 MB and JPEG/PNG/GIF/WebP only.
+- Media uploads limited to 50 MB; images (JPEG/PNG/GIF/WebP), video (MP4/WebM/3GP/MOV), and audio (MP3/M4A/WebM/OGG/WAV/AAC/AMR) are allowed.
 - The sample `JWT_SECRET` and cleartext HTTP are for local development. For production, run behind HTTPS (TLS) with a strong `JWT_SECRET` and a real database.
 
 ## Tech stack
 
-- **Android:** Kotlin, Jetpack (AppCompat, Material, ViewBinding, Lifecycle), Retrofit + OkHttp + Gson, Socket.io Java client, Coil (images).
+- **Android:** Kotlin, Jetpack (AppCompat, Material, ViewBinding, Lifecycle), Retrofit + OkHttp + Gson, Socket.io Java client, Coil + coil-video (images & video thumbnails), MediaRecorder (voice notes).
 - **Backend:** Node.js, Express, Socket.io, JWT (`jsonwebtoken`), `bcryptjs`, Multer, JSON file store (no external DB required).
 
 ## License

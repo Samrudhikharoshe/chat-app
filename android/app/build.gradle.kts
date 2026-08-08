@@ -11,8 +11,8 @@ android {
         applicationId = "com.chatapp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
     }
 
     buildTypes {
@@ -67,4 +67,5 @@ dependencies {
 
     implementation("io.socket:socket.io-client:2.1.0")
     implementation("io.coil-kt:coil:2.6.0")
+    implementation("io.coil-kt:coil-video:2.6.0")
 }

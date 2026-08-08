@@ -1,0 +1,21 @@
+{
+  "name": "chatapp-backend",
+  "version": "1.0.0",
+  "description": "Real-time chat backend: Express REST API + Socket.io real-time messaging with JWT auth.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.0",
+    "socket.io": "^4.7.5"
+  }
+}

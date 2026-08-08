@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#4F46E5</color>
+    <color name="primary_dark">#4338CA</color>
+    <color name="primary_light">#EEF2FF</color>
+    <color name="accent">#22C55E</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#0F172A</color>
+    <color name="gray_text">#64748B</color>
+    <color name="gray_light">#E2E8F0</color>
+    <color name="gray_bg">#F1F5F9</color>
+    <color name="bubble_in">#F1F5F9</color>
+    <color name="bubble_out">#4F46E5</color>
+    <color name="offline_gray">#94A3B8</color>
+</resources>

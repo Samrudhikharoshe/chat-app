@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chat App</string>
+
+    <string name="welcome">Welcome to Chat App</string>
+    <string name="tagline">Real-time messaging with friends</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="create_account">Create account</string>
+    <string name="already_account">Already have an account? Sign in</string>
+    <string name="name_required">Name is required</string>
+    <string name="email_invalid">Enter a valid email</string>
+    <string name="password_short">Password must be at least 6 characters</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+
+    <string name="contacts">Contacts</string>
+    <string name="logout">Logout</string>
+    <string name="search_hint">Search contacts…</string>
+    <string name="no_contacts">No contacts yet.\nShare the app with friends to start chatting.</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
+
+    <string name="type_hint">Type a message…</string>
+    <string name="send">Send</string>
+    <string name="attach">Attach image</string>
+    <string name="reconnecting">Reconnecting to server…</string>
+    <string name="photo">Photo</string>
+</resources>

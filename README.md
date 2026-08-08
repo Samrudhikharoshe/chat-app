@@ -74,10 +74,15 @@ cd android
 
 ### 3. Configure the server address
 
-The app targets the Android emulator host loopback by default (`10.0.2.2:3000`).
+The app connects to the backend at `android/app/src/main/java/com/chatapp/data/Config.kt` (currently set to a LAN address for physical-device testing).
 
-- **Emulator:** no change needed.
-- **Physical device:** edit `android/app/src/main/java/com/chatapp/data/Config.kt` to your PC's LAN IP, e.g. `http://192.168.1.50:3000/`, then rebuild. Both devices must be on the same network.
+- **Physical device (same Wi-Fi as the PC):** set both URLs to your PC's local IP, e.g. `http://192.168.31.230:3000/`, then rebuild:
+  ```bash
+  cd android
+  ./gradlew :app:assembleDebug
+  ```
+  Allow TCP port 3000 through Windows Firewall, and keep your PC's Wi-Fi network set to **Private**.
+- **Emulator:** use the host loopback `http://10.0.2.2:3000/` instead.
 
 ### 4. Test with two users
 

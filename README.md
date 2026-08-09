@@ -45,7 +45,7 @@ npm install
 npm start
 ```
 
-The server listens on `http://0.0.0.0:3000`. Health check: `curl http://localhost:3000/health`.
+The server listens on `http://0.0.0.0:3001`. Health check: `curl http://localhost:3001/health`.
 
 Data is stored in `backend/data/` (JSON files); uploaded images land in `backend/uploads/`.
 
@@ -80,12 +80,12 @@ cd android
 
 The app asks for the **server address** on the login screen (pre-filled with the default from `android/app/src/main/java/com/chatapp/data/Config.kt`). The address is saved per device, so no rebuild is needed to switch servers.
 
-- **Physical device (same Wi-Fi as the PC):** use your PC's local IP, e.g. `http://192.168.31.230:3000`. Allow TCP port 3000 through Windows Firewall and keep the Wi-Fi network set to **Private**.
-- **Emulator:** use the host loopback `http://10.0.2.2:3000`.
+- **Physical device (same Wi-Fi as the PC):** use your PC's local IP, e.g. `http://192.168.31.230:3001`. Allow TCP port 3001 through Windows Firewall and keep the Wi-Fi network set to **Private**.
+- **Emulator:** use the host loopback `http://10.0.2.2:3001`.
 - **Anywhere (different networks / 4G):** expose the backend over a free Cloudflare quick tunnel — no public IP or port forwarding required.
 
 ```bash
-cloudflared tunnel --url http://localhost:3000
+cloudflared tunnel --url http://localhost:3001
 ```
 
 Copy the printed `https://<random>.trycloudflare.com` URL into the server-address field of the app (leave off any trailing slash). The tunnel URL changes on every `cloudflared` restart, so re-enter the new one in the app if it restarts.

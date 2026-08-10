@@ -7,15 +7,11 @@
     <string name="name">Name</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="server_address">Server address</string>
-    <string name="server_hint">e.g. https://your-name.trycloudflare.com</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
     <string name="create_account">Create account</string>
     <string name="already_account">Already have an account? Sign in</string>
     <string name="name_required">Name is required</string>
-    <string name="server_required">Server address is required</string>
-    <string name="server_invalid">Enter a full URL starting with http:// or https://</string>
     <string name="email_invalid">Enter a valid email</string>
     <string name="password_short">Password must be at least 6 characters</string>
     <string name="error_generic">Something went wrong. Please try again.</string>

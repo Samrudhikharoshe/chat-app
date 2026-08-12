@@ -32,6 +32,10 @@ class Session private constructor(context: Context) {
         get() = prefs.getString(KEY_SERVER, null) ?: Config.DEFAULT_URL
         set(value) = prefs.edit().putString(KEY_SERVER, value).apply()
 
+    var smsNumber: String?
+        get() = prefs.getString(KEY_SMS_NUMBER, null)
+        set(value) = prefs.edit().putString(KEY_SMS_NUMBER, value).apply()
+
     fun saveAuth(user: User, token: String) {
         this.token = token
         userId = user.id
@@ -53,6 +57,7 @@ class Session private constructor(context: Context) {
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_AVATAR = "avatar"
         private const val KEY_SERVER = "server_url"
+        private const val KEY_SMS_NUMBER = "sms_number"
 
         @Volatile
         private var instance: Session? = null

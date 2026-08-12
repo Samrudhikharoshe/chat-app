@@ -13,12 +13,15 @@ import com.chatapp.R
 import com.chatapp.data.ChatRepository
 import com.chatapp.data.Message
 import com.chatapp.data.MessageCache
+import com.chatapp.data.NearbyMessenger
 import com.chatapp.data.Session
 import com.chatapp.data.SocketManager
 import com.chatapp.data.User
 import com.chatapp.databinding.ActivityContactsBinding
 import com.chatapp.ui.chat.ChatActivity
 import com.chatapp.ui.login.LoginActivity
+import com.chatapp.ui.nearby.NearbyActivity
+import com.chatapp.ui.sms.SmsActivity
 import kotlinx.coroutines.launch
 
 class ContactsActivity : AppCompatActivity() {
@@ -83,6 +86,14 @@ class ContactsActivity : AppCompatActivity() {
                     pickProfilePhoto.launch("image/*")
                     true
                 }
+                R.id.action_nearby -> {
+                    startActivity(Intent(this, NearbyActivity::class.java))
+                    true
+                }
+                R.id.action_sms -> {
+                    startActivity(Intent(this, SmsActivity::class.java))
+                    true
+                }
                 R.id.action_logout -> {
                     logout()
                     true
@@ -114,6 +125,7 @@ class ContactsActivity : AppCompatActivity() {
 
         binding.refresh.setOnClickListener { loadUsers() }
         SocketManager.addListener(socketListener)
+        NearbyMessenger.addMessageListener(socketListener)
         loadUsers()
     }
 
@@ -124,6 +136,7 @@ class ContactsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         SocketManager.removeListener(socketListener)
+        NearbyMessenger.removeMessageListener(socketListener)
         super.onDestroy()
     }
 

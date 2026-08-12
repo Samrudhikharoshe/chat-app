@@ -40,6 +40,7 @@
     <string name="cancel">Cancel</string>
     <string name="recording">Recording…</string>
     <string name="sending">Sending…</string>
+    <string name="queued">Queued — will send when online</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="react">React</string>
@@ -53,4 +54,29 @@
     <string name="recording_requires_permission">Microphone permission is required to record a voice note.</string>
     <string name="edit_message_hint">Edit message</string>
     <string name="choose_action">Choose an action</string>
+
+    <string name="nearby_chat">Nearby chat (offline)</string>
+    <string name="nearby_devices">Nearby devices</string>
+    <string name="nearby_scanning">Scanning for nearby devices…\nKeep both phones close, with Bluetooth and Wi-Fi on.</string>
+    <string name="nearby_found">Devices found</string>
+    <string name="nearby_empty">No devices nearby</string>
+    <string name="nearby_connected">Connected</string>
+    <string name="nearby_connecting">Connecting…</string>
+    <string name="nearby_permission_denied">Nearby chat needs Bluetooth and Location permission. Grant them and try again.</string>
+    <string name="nearby_peer_connected">Connected to %1$s</string>
+
+    <string name="sms_title">SMS chat (no internet)</string>
+    <string name="sms_my_number">Your phone number</string>
+    <string name="sms_hint">Messages travel as SMS over the cellular network — they work anywhere, with no internet or server. Your number is added to messages so the other person knows who sent them.</string>
+    <string name="sms_save">Save</string>
+    <string name="sms_new_chat">New SMS chat</string>
+    <string name="sms_enter_number">Enter phone number</string>
+    <string name="sms_start">Start chat</string>
+    <string name="sms_empty">No SMS chats yet</string>
+    <string name="sms_permission_denied">SMS chat needs SMS and Phone permissions. Grant them and try again.</string>
+    <string name="sms_invalid_number">Enter a valid phone number</string>
+    <string name="sms_number_saved">Number saved</string>
+    <string name="sms_set_number_first">Set your phone number first (in SMS chat screen)</string>
+    <string name="sms_too_long">Message is too long for one SMS (140 characters)</string>
+    <string name="sms_text_only">Only text messages work over SMS</string>
 </resources>

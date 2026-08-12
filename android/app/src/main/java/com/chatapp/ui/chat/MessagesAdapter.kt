@@ -154,7 +154,7 @@ class MessagesAdapter(
     }
 
     private fun stateLabel(message: Message): String {
-        if (message.pending) return "  ${context.getString(R.string.sending)}"
+        if (message.pending) return "  ${context.getString(R.string.queued)}"
         val edited = if (message.edited) context.getString(R.string.edited_suffix) else ""
         val read = if (message.fromId == myId) {
             if (message.read) "  ✓✓" else "  ✓"

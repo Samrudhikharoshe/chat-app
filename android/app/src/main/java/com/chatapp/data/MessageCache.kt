@@ -52,6 +52,12 @@ class MessageCache private constructor(context: Context) {
         pending.forEach { SocketManager.emitQueued(it) }
     }
 
+    fun peerIds(): List<String> = prefs.all.keys
+        .asSequence()
+        .filter { it.startsWith("chat_") }
+        .map { it.removePrefix("chat_") }
+        .toList()
+
     private fun keyFor(peerId: String): String = "chat_$peerId"
 
     companion object {

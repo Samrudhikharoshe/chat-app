@@ -22,7 +22,9 @@ import com.chatapp.R
 import com.chatapp.data.ChatRepository
 import com.chatapp.data.Message
 import com.chatapp.data.MessageCache
+import com.chatapp.data.NearbyMessenger
 import com.chatapp.data.Session
+import com.chatapp.data.SmsMessenger
 import com.chatapp.data.SocketManager
 import com.chatapp.data.User
 import com.chatapp.databinding.ActivityChatBinding
@@ -39,6 +41,8 @@ class ChatActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_PEER_ID = "peer_id"
         const val EXTRA_PEER_NAME = "peer_name"
+        const val EXTRA_NEARBY = "nearby_mode"
+        const val EXTRA_SMS = "sms_mode"
         private const val RECORDING_DURATION_MAX = 90
     }
 
@@ -48,6 +52,8 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var peerId: String
     private var peerName: String = ""
+    private var nearbyMode = false
+    private var smsMode = false
 
     private var lastTypingSent = 0L
     private var typingJob: Job? = null
@@ -88,7 +94,7 @@ class ChatActivity : AppCompatActivity() {
                 runOnUiThread {
                     appendMessage(message)
                     MessageCache.current.saveMessage(message)
-                    SocketManager.markRead(peerId)
+                    if (!nearbyMode && !smsMode) SocketManager.markRead(peerId)
                 }
             }
         }
@@ -160,6 +166,8 @@ class ChatActivity : AppCompatActivity() {
 
         peerId = intent.getStringExtra(EXTRA_PEER_ID).orEmpty()
         peerName = intent.getStringExtra(EXTRA_PEER_NAME) ?: ""
+        nearbyMode = intent.getBooleanExtra(EXTRA_NEARBY, false)
+        smsMode = intent.getBooleanExtra(EXTRA_SMS, false)
 
         adapter = MessagesAdapter(this, Session.current.userId.orEmpty())
         binding.recycler.layoutManager = LinearLayoutManager(this).apply {
@@ -171,7 +179,12 @@ class ChatActivity : AppCompatActivity() {
         adapter.onReact = { message, emoji -> SocketManager.reactToMessage(message.id, emoji) }
 
         setupToolbar()
-        SocketManager.addListener(socketListener)
+        when {
+            nearbyMode -> NearbyMessenger.addMessageListener(socketListener)
+            smsMode -> SmsMessenger.addListener(socketListener)
+            else -> SocketManager.addListener(socketListener)
+        }
+        if (nearbyMode || smsMode) binding.btnAttach.visibility = View.GONE
 
         binding.btnSend.setOnClickListener { sendCurrentText() }
         binding.btnAttach.setOnClickListener { showAttachOptions() }
@@ -180,7 +193,7 @@ class ChatActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
             override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
             override fun afterTextChanged(s: android.text.Editable?) {
-                if (s != null && s.isNotEmpty()) {
+                if (s != null && s.isNotEmpty() && !nearbyMode && !smsMode) {
                     SocketManager.sendTyping(peerId, true)
                     lastTypingSent = System.currentTimeMillis()
                     typingJob?.cancel()
@@ -201,16 +214,20 @@ class ChatActivity : AppCompatActivity() {
         })
 
         loadHistory()
-        if (Session.current.userId != null) SocketManager.markRead(peerId)
+        if (!nearbyMode && !smsMode && Session.current.userId != null) SocketManager.markRead(peerId)
     }
 
     override fun onResume() {
         super.onResume()
-        if (Session.current.userId != null) SocketManager.markRead(peerId)
+        if (!nearbyMode && !smsMode && Session.current.userId != null) SocketManager.markRead(peerId)
     }
 
     override fun onDestroy() {
-        SocketManager.removeListener(socketListener)
+        when {
+            nearbyMode -> NearbyMessenger.removeMessageListener(socketListener)
+            smsMode -> SmsMessenger.removeListener(socketListener)
+            else -> SocketManager.removeListener(socketListener)
+        }
         typingJob?.cancel()
         recordingTimerJob?.cancel()
         reactionDialog?.dismiss()
@@ -222,17 +239,22 @@ class ChatActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        SocketManager.sendTyping(peerId, false)
+        if (!nearbyMode && !smsMode) SocketManager.sendTyping(peerId, false)
         super.onBackPressed()
     }
 
     private fun setupToolbar() {
         binding.toolbar.title = peerName
-        binding.toolbar.subtitle = "Offline"
+        binding.toolbar.subtitle = when {
+            nearbyMode -> "Nearby"
+            smsMode -> "SMS"
+            else -> "Offline"
+        }
         binding.toolbar.setNavigationOnClickListener { finish() }
     }
 
     private fun updateHeaderStatus(user: User) {
+        if (nearbyMode || smsMode) return
         binding.toolbar.subtitle = if (user.online) {
             "Online"
         } else {
@@ -259,6 +281,7 @@ class ChatActivity : AppCompatActivity() {
     private fun loadHistory() {
         lifecycleScope.launch {
             adapter.submit(MessageCache.current.historyFor(peerId))
+            if (nearbyMode || smsMode) return@launch
             repository.fetchMessages(peerId).onSuccess { history ->
                 adapter.submit(history)
                 MessageCache.current.saveAll(peerId, history)
@@ -279,11 +302,25 @@ class ChatActivity : AppCompatActivity() {
         val text = binding.inputMessage.text?.toString()?.trim().orEmpty()
         if (text.isEmpty()) return
         binding.inputMessage.text?.clear()
-        SocketManager.sendTyping(peerId, false)
+        if (!nearbyMode && !smsMode) SocketManager.sendTyping(peerId, false)
         sendMessageLocal("text", text, null)
     }
 
     private fun sendMessageLocal(type: String, content: String?, mediaUrl: String?, duration: Int? = null) {
+        if (smsMode) {
+            if (type != "text" || content.isNullOrEmpty()) {
+                Toast.makeText(this, getString(R.string.sms_text_only), Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (SmsMessenger.myNumber.isEmpty()) {
+                Toast.makeText(this, getString(R.string.sms_set_number_first), Toast.LENGTH_LONG).show()
+                return
+            }
+            if (!SmsMessenger.isSendable(content)) {
+                Toast.makeText(this, getString(R.string.sms_too_long), Toast.LENGTH_LONG).show()
+                return
+            }
+        }
         val id = UUID.randomUUID().toString()
         val message = Message(
             id = id,
@@ -300,7 +337,11 @@ class ChatActivity : AppCompatActivity() {
         MessageCache.current.queueOutgoing(message)
         adapter.upsert(message)
         binding.recycler.scrollToPosition(adapter.itemCount - 1)
-        SocketManager.sendMessage(peerId, type, content, mediaUrl, id, duration)
+        when {
+            nearbyMode -> NearbyMessenger.sendMessage(peerId, message)
+            smsMode -> SmsMessenger.sendMessage(peerId, message)
+            else -> SocketManager.sendMessage(peerId, type, content, mediaUrl, id, duration)
+        }
     }
 
     private fun showAttachOptions() {

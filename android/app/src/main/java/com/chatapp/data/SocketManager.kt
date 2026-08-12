@@ -24,6 +24,9 @@ object SocketManager {
     @Volatile
     private var socket: Socket? = null
 
+    @Volatile
+    private var errorNotified = false
+
     private val listeners = CopyOnWriteArrayList<Listener>()
 
     val isConnected: Boolean
@@ -53,6 +56,7 @@ object SocketManager {
         val newSocket = IO.socket(URI.create(serverUrl), options)
 
         newSocket.on(Socket.EVENT_CONNECT) {
+            errorNotified = false
             listeners.forEach { it.onConnected() }
             MessageCache.current.flushPending()
         }
@@ -60,7 +64,10 @@ object SocketManager {
             listeners.forEach { it.onDisconnected() }
         }
         newSocket.on(Socket.EVENT_CONNECT_ERROR) {
-            listeners.forEach { l -> l.onError("Cannot reach the chat server.") }
+            if (!errorNotified) {
+                errorNotified = true
+                listeners.forEach { l -> l.onError("Cannot reach the chat server.") }
+            }
         }
 
         newSocket.on("message:new") { args ->
@@ -134,6 +141,7 @@ object SocketManager {
         id: String?,
         duration: Int?
     ) {
+        if (socket?.connected() != true) return
         val payload = JSONObject()
         payload.put("to", to)
         payload.put("type", type)

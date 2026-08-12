@@ -7,6 +7,14 @@
         android:title="@string/set_profile_photo"
         app:showAsAction="always" />
     <item
+        android:id="@+id/action_nearby"
+        android:title="@string/nearby_chat"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_sms"
+        android:title="@string/sms_title"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_logout"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@string/logout"

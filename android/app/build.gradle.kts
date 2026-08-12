@@ -66,6 +66,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
 
     implementation("io.socket:socket.io-client:2.1.0")
+    implementation("com.google.android.gms:play-services-nearby:19.2.0")
     implementation("io.coil-kt:coil:2.6.0")
     implementation("io.coil-kt:coil-video:2.6.0")
 }

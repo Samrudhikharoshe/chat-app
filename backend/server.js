@@ -10,7 +10,7 @@ const { upload, UPLOADS_DIR } = require('./src/media');
 const { createSocketServer } = require('./src/socket');
 const store = require('./src/store');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '0.0.0.0';
 
 store.loadUsers();

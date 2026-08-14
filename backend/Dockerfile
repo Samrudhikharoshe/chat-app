@@ -11,6 +11,6 @@ COPY src ./src
 
 RUN mkdir -p data uploads
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["node", "server.js"]

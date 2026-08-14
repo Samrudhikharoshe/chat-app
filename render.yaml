@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: chatapp
+    runtime: docker
+    rootDir: backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
